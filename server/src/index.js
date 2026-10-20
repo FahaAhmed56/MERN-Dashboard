@@ -1,0 +1,2 @@
+import 'dotenv/config';import mongoose from 'mongoose';import app from './app.js';
+if(!process.env.MONGO_URI||!process.env.JWT_SECRET||process.env.JWT_SECRET.length<24){console.error('Set MONGO_URI and a JWT_SECRET of at least 24 characters in server/.env');process.exit(1);}try{await mongoose.connect(process.env.MONGO_URI);const port=Number(process.env.PORT||5000);app.listen(port,()=>console.log(`Project Pulse API at http://localhost:${port}`));}catch(e){console.error('MongoDB connection failed:',e.message);process.exit(1);}

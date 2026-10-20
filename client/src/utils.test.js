@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';test('board statuses are unique',()=>assert.equal(new Set(['todo','in_progress','done']).size,3));

@@ -1,0 +1,7 @@
+import {Router} from 'express';import {z} from 'zod';import mongoose from 'mongoose';import Project from '../models/Project.js';import Task from '../models/Task.js';
+const router=Router();const schema=z.object({name:z.string().trim().min(1).max(100),description:z.string().max(500).default(''),color:z.string().regex(/^#[0-9a-fA-F]{6}$/).default('#6366f1')});
+router.get('/',async(req,res,next)=>{try{res.json(await Project.find({owner:req.userId}).sort({createdAt:-1}));}catch(e){next(e);}});
+router.post('/',async(req,res,next)=>{try{res.status(201).json(await Project.create({...schema.parse(req.body),owner:req.userId}));}catch(e){next(e);}});
+router.patch('/:id',async(req,res,next)=>{try{if(!mongoose.isValidObjectId(req.params.id))return res.status(400).json({error:'Invalid project id'});const project=await Project.findOneAndUpdate({_id:req.params.id,owner:req.userId},{$set:schema.partial().parse(req.body)},{new:true,runValidators:true});if(!project)return res.status(404).json({error:'Project not found'});res.json(project);}catch(e){next(e);}});
+router.delete('/:id',async(req,res,next)=>{try{if(!mongoose.isValidObjectId(req.params.id))return res.status(400).json({error:'Invalid project id'});const project=await Project.findOneAndDelete({_id:req.params.id,owner:req.userId});if(!project)return res.status(404).json({error:'Project not found'});await Task.deleteMany({project:project._id,owner:req.userId});res.status(204).end();}catch(e){next(e);}});
+export default router;
